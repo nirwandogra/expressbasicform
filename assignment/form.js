@@ -1,7 +1,21 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var mysql      = require('mysql');
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : 'root',
+  database : 'address_book'
+});
 var app = express();
 app.use(bodyParser());
+connection.connect(function(err){
+if(!err) {
+    console.log("Database is connected ... \n\n");  
+} else {
+    console.log("Error connecting database ... \n\n");  
+}
+});
 app.get('/', function(req, res){
 var html = '<form action="/" method="post">' +
                'Enter your name:' +
@@ -28,6 +42,8 @@ app.post('/', function(req, res){
   if(validateEmail(email)==1 && userName!='')
   {
      res.send(html1);
+     var quer="INSERT INTO `address_book`.`Info` (`username`, `email`) VALUES (' "+userName+"', '"+email+" ');";
+     var result =connection.query(quer);
      fs.writeFile("test.csv",userName+','+email, function(err) {
      if(err) {
         return console.log(err);
@@ -39,8 +55,6 @@ app.post('/', function(req, res){
   {
      res.send(html2); 
   }  
-  
 });
-
 app.listen(8080);
 console.log('Listening on port 8080 ');
